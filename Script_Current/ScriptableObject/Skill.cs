@@ -17,7 +17,7 @@ public class Skill : ScriptableObject
     [ReadOnly]
     [ListDrawerSettings(Expanded = true)]
     [LabelText("현 모션 리스트(readOnly)")]
-    private List<Motion> motions= new List<Motion>();
+    public List<Motion> motions= new List<Motion>();
     
     
     

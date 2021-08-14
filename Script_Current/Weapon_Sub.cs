@@ -12,14 +12,15 @@ public class Weapon_Sub : Weapon
     public bool optional = true;
     public EquipType equipType;
 
-    public override void Start()
+    public override void StartSetting(EquipManager e)
     {
-        base.Start();
+        base.StartSetting(e);
         switch (equipType)
         {
             case EquipType.shield:
                 unsheathTransform.parent = player.shield;
                 sheathTransform.parent = player.back;
+                
                 break;
             case EquipType.bow:
                 unsheathTransform.parent = player.leftHand;
@@ -31,8 +32,8 @@ public class Weapon_Sub : Weapon
                 break;
         }
     }
-    public override void Move(TargetTransform tt)
+    public override void Move(TargetTransform tt,float delay=0.0f)
     {
-        base.Move(tt);
+        base.Move(tt,delay);
     }
 }

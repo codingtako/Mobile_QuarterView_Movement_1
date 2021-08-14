@@ -7,7 +7,9 @@ using UnityEngine;
 
 public class WeaponData : MonoBehaviour
 {
-    public enum WeaponTag { One_Hand=1<<0,Two_Hand=1<<1,Blade=1<<2,Axe=1<<3,Blunt=1<<4 }
+    public Weapon_Main mainWeapon;
+
+    public Weapon_Sub subWeapon;
 //----------------------------------------------------------------------------------------------------------------------
     #region 커멘드별 스킬,모션 
     [HorizontalGroup("Commands")]
@@ -24,6 +26,7 @@ public class WeaponData : MonoBehaviour
     public List<int> preCommands = new List<int>();
     #endregion
 //----------------------------------------------------------------------------------------------------------------------
+    
 
     public int ConvertCommand(Motion.Command command)
     {
@@ -58,13 +61,13 @@ public class WeaponData : MonoBehaviour
         {
             foreach (var command  in preCommands)
             {
-                if (STARTUP.FirstDigit(command) == 1 && firstMotion.command == Motion.Command.Normal) canAdd = false;
-                if (STARTUP.FirstDigit(command) == 9 && firstMotion.command == Motion.Command.Normal) canAdd = false;
-                if (STARTUP.FirstDigit(command) == 2 && firstMotion.command == Motion.Command.Delay) canAdd = false;
-                if (STARTUP.FirstDigit(command) == 8 && firstMotion.command == Motion.Command.Delay) canAdd = false;
-                if (STARTUP.FirstDigit(command) == 3 && firstMotion.command == Motion.Command.Charge) canAdd = false;
-                if (STARTUP.FirstDigit(command) == 7 && firstMotion.command == Motion.Command.Charge) canAdd = false;
-                Debug.LogWarning("이미 해당 시작 커멘드가 있습니다!");
+                if (STARTUP.FirstDigit(command) == 1 && firstMotion.command == Motion.Command.Normal && !isSpecial ) canAdd = false;
+                if (STARTUP.FirstDigit(command) == 9 && firstMotion.command == Motion.Command.Normal && isSpecial ) canAdd = false;
+                if (STARTUP.FirstDigit(command) == 2 && firstMotion.command == Motion.Command.Delay&& !isSpecial) canAdd = false;
+                if (STARTUP.FirstDigit(command) == 8 && firstMotion.command == Motion.Command.Delay&& isSpecial ) canAdd = false;
+                if (STARTUP.FirstDigit(command) == 3 && firstMotion.command == Motion.Command.Charge&& !isSpecial) canAdd = false;
+                if (STARTUP.FirstDigit(command) == 7 && firstMotion.command == Motion.Command.Charge&& isSpecial ) canAdd = false;
+                if(!canAdd)Debug.LogWarning("이미 해당 시작 커멘드가 있습니다!");
             }
         }
         #endregion

@@ -9,9 +9,24 @@ public class Weapon_Main : Weapon
         oneHand_Sword=0,twoHand_Sword=1
     }
 
-    public EquipType equipType;
-    public override void Move(TargetTransform tt)
+    public override void StartSetting(EquipManager e)
     {
-        base.Move(tt);
+        base.StartSetting(e);
+        switch (equipType)
+        {
+            case EquipType.oneHand_Sword:
+                sheathTransform.parent = player.back;
+                unsheathTransform.parent = player.rightHand;
+                break;
+            case EquipType.twoHand_Sword:
+                sheathTransform.parent = player.back;
+                unsheathTransform.parent = player.rightHand;
+                break;
+        }
+    }
+    public EquipType equipType;
+    public override void Move(TargetTransform tt,float delay=0.0f)
+    {
+        base.Move(tt,delay);
     }
 }

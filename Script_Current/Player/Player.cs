@@ -223,7 +223,7 @@ public class Player : MonoBehaviour
 
     public void Set_EquipState(EquipManager.EquipState equipState)
     {
-        equipManager.Set_EquipState(equipState);
+        //equipManager.Set_EquipState(equipState);
     }
     #endregion
     #region Get ÇÔ¼ö

@@ -6,6 +6,7 @@ using Sirenix.OdinInspector;
 
 public class Weapon : MonoBehaviour
 {
+    public enum WeaponTag { One_Hand=1<<0,Two_Hand=1<<1,Blade=1<<2,Axe=1<<3,Blunt=1<<4 }
     protected Player player;
     [System.Serializable]
     public class TargetTransform
@@ -29,23 +30,28 @@ public class Weapon : MonoBehaviour
 
     public TargetTransform sheathTransform;
     public TargetTransform unsheathTransform;
-    
-    public virtual void Move(TargetTransform tt)
+    [HideInInspector]
+    public Transform holdTransform;
+    public virtual void Move(TargetTransform tt,float delay=0.0f)
     {
         DOTween.Kill(tt.hash_Pos);
         DOTween.Kill(tt.hash_Rot);
         DOTween.Kill(tt.hash_Scale);
         
-        transform.parent = tt.parent;
+        
 
-        transform.DOLocalMove(tt.targetPos, tt.duration).SetId(tt.hash_Pos);
-        transform.DOLocalRotateQuaternion(Quaternion.Euler(tt.targetRot), tt.duration).SetId(tt.hash_Rot);
-        transform.DOScale(tt.targetScale, tt.duration).SetId(tt.hash_Scale);
+        transform.DOLocalMove(tt.targetPos, tt.duration).SetId(tt.hash_Pos).SetDelay(delay).OnStart(() =>
+        {
+            transform.parent = tt.parent;
+        });
+        transform.DOLocalRotateQuaternion(Quaternion.Euler(tt.targetRot), tt.duration).SetId(tt.hash_Rot).SetDelay(delay);
+        transform.DOScale(tt.targetScale, tt.duration).SetId(tt.hash_Scale).SetDelay(delay);
     }
 
-    public virtual void Start()
+    public virtual void StartSetting(EquipManager e)
     {
-        player = GetComponent<Player>();
+        player = GameObject.FindObjectOfType<Player>();
+        holdTransform = transform.Find("Hold");
     }
     /*
     public void Update()
