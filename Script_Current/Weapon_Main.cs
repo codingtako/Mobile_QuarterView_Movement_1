@@ -15,12 +15,16 @@ public class Weapon_Main : Weapon
         switch (equipType)
         {
             case EquipType.oneHand_Sword:
-                sheathTransform.parent = player.back;
+                unsheathReadyTransform.parent = player.back;
                 unsheathTransform.parent = player.rightHand;
+                sheathReadyTransform.parent = player.rightHand;
+                sheathTransform.parent = player.back;
                 break;
             case EquipType.twoHand_Sword:
-                sheathTransform.parent = player.back;
+                unsheathReadyTransform.parent = player.back;
                 unsheathTransform.parent = player.rightHand;
+                sheathReadyTransform.parent = player.rightHand;
+                sheathTransform.parent = player.back;
                 break;
         }
     }

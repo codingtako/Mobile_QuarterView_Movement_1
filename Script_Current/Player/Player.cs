@@ -9,13 +9,22 @@ using Sirenix.OdinInspector;
 using Pathfinding;
 public class Player : MonoBehaviour
 {
+    public float timeScale = 0.5f;
     public Animator anim;
     public AIPath ai;
     public Player_Pointer pointer;
     public EquipManager equipManager;
+    public WeaponData weaponData;
+    #region 각종 State
+    //루트모션의 이동,회전 상태
     public enum MoveState{ RootMotion=0,RootPosition=1,RootRotation=2,None=3}
-
     private MoveState moveState;
+    //플레이어의 상태
+    public enum PlayerState { Locomotion = 0, Attack=1,Roll=2  }
+    [ReadOnly]
+    public PlayerState playerState;
+    #endregion
+   
     private float moveSpeed = 1;
 
     #region EquipTransform
@@ -63,10 +72,15 @@ public class Player : MonoBehaviour
         ai = GetComponentInParent<AIPath>();
         pointer = transform.parent.GetComponentInChildren<Player_Pointer>();
         equipManager = GetComponent<EquipManager>();
+        Time.timeScale = timeScale;
+        Time.fixedDeltaTime = timeScale * 0.02f;
+        weaponData = GetComponent<WeaponData>();
     }
     public void SetEvent()
     {
         InputManager.NB_Roll.onButtonDown.AddListener(On_NB_Roll_Down);
+        InputManager.JS_MainWaepon.onReleased.AddListener(On_NormalAttack);
+        InputManager.JS_Skill.onReleased.AddListener(On_SkillAttack);
     }
     #endregion
     
@@ -164,6 +178,82 @@ public class Player : MonoBehaviour
             #region Transition(아직 없음)
             #endregion
         #endregion
+
+        #region Attack(SuperState)
+
+        #region FlowState
+            #region Anticipation
+            public void Attack_Anticipation_Enter()
+            {
+                playerState = PlayerState.Attack;
+                anim.CrossFadeInFixedTime("Attack_Ready 0",0.2f,0);
+            }
+            public void Attack_Anticipation()
+            {
+                if (!anim.IsInTransition(0)
+                    &&anim.GetCurrentAnimatorStateInfo(0).IsName("Attack_Ready 0")  
+                    && anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9f)
+                {
+                    anim.CrossFade("Attack 0",weaponData.Motions[0].readyTransitionDuration,0
+                        ,weaponData.Motions[0].readyTransitionNoramlizedTime);
+                }
+            }
+            #endregion
+        
+        public void Attack_Contact_Enter()
+        {
+            equipManager.weaponMain.trail.active=true;
+            if (equipManager.weaponSub != null)
+            {
+                equipManager.weaponSub.trail.active=true;
+            }
+        }
+        public void Attack_Contact()
+        {
+            
+        }
+        public void Attack_Delay_Enter()
+        {
+            equipManager.weaponMain.trail.active=false;
+            if (equipManager.weaponSub != null)
+            {
+                equipManager.weaponSub.trail.active=false;
+            }
+        }
+        public void Attack_Delay()
+        {
+            
+        }
+        public void Attack_Recovery_Enter()
+        {
+            
+        }
+        public void Attack_Recovery()
+        {
+            
+        }
+        #endregion
+
+        #region Transition
+
+        public bool Anticipation_Contact()
+        {
+            
+            return false;
+        }
+
+        public bool Contact_Delay()
+        {
+            return false;
+        }
+
+        public bool Delay_Recovery()
+        {
+            return false;
+        }
+    
+        #endregion
+        #endregion
         #region Transition(SuperState)
         //Locomotion_Roll은 이벤트로 처리한다.
         public bool Roll_Locomotion()
@@ -175,6 +265,11 @@ public class Player : MonoBehaviour
                 return true;
             }
             else return false;
+        }
+
+        public bool Attack_Locomotion()
+        {
+            return false;
         }
         #endregion
     #endregion
@@ -225,6 +320,11 @@ public class Player : MonoBehaviour
     {
         //equipManager.Set_EquipState(equipState);
     }
+
+    public void Set_PlayerState(PlayerState state)
+    {
+        playerState = state;
+    }
     #endregion
     #region Get 함수
     #endregion
@@ -262,6 +362,19 @@ public class Player : MonoBehaviour
         if(!Check_AnimatorStateInfo("Roll"))DefinedEvent.Trigger(gameObject,GM.nb_Roll_Down);
     }
 
+    public void On_NormalAttack()
+    {
+        if (playerState != PlayerState.Locomotion) return;
+        print("Normal_Attack");
+        DefinedEvent.Trigger(gameObject,GM.bolt_Attack);
+    }
+
+    public void On_SkillAttack()
+    {
+        if (playerState != PlayerState.Locomotion) return;
+        print("Skill_Attack");
+        DefinedEvent.Trigger(gameObject,GM.bolt_Attack);
+    }
     #endregion
 
 

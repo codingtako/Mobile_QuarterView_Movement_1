@@ -9,9 +9,6 @@ using Sirenix.OdinInspector;
 public class Motion : ScriptableObject
 
 {
-    
-   
-    public AnimationClip unsheath_Ready;
     public AnimationClip attack_Ready;
     public AnimationClip attack;
     
@@ -45,6 +42,11 @@ public class Motion : ScriptableObject
     [BoxGroup("조작,연계")]
     public List<Command> nextCommands = new List<Command>();
 
+    [LabelText("트렌지션 시간")] [BoxGroup("조작,연계")]
+    public float readyTransitionDuration = 0.1f;
+
+    [LabelText("ready 후 재생비율")] [BoxGroup("조작,연계")]
+    public float readyTransitionNoramlizedTime = 0.05f;
     //공백
     [ShowInInspector]
     [ReadOnly]

@@ -38,7 +38,8 @@ public class GM : MonoBehaviour
     public static  UnityEvent NB_Roll_Up;
     public static NB_Roll_Up nb_Roll_Up = new NB_Roll_Up();
     #endregion
-    
+
+    public static Bolt_Attack bolt_Attack = new Bolt_Attack();
 
     
 

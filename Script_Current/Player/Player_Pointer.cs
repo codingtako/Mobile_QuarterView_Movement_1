@@ -46,7 +46,7 @@ public class Player_Pointer : MonoBehaviour
     }
     public bool CanActivate()
     {
-        return InputManager.JS_MainWaepon.input != Vector3.zero;
+        return InputManager.JS_MainWaepon.input != Vector3.zero||InputManager.JS_Skill.input != Vector3.zero;
     }
     #endregion
 
@@ -56,7 +56,7 @@ public class Player_Pointer : MonoBehaviour
         #region 입력 받아서 twist 최초 각도 확인
         Vector3 targetVec;
         float angleDist;
-        if ( InputManager.JS_MainWaepon.input == Vector3.zero)
+        if ( InputManager.JS_MainWaepon.input == Vector3.zero&&InputManager.JS_Skill.input == Vector3.zero)
         {
             targetVec= transform.parent.transform.rotation*Vector3.forward;
             angleDist = 0;
@@ -64,7 +64,7 @@ public class Player_Pointer : MonoBehaviour
         else
         {
             targetVec = Quaternion.Euler(0, MainCamera.instance.transform.rotation.eulerAngles.y, 0)
-                        *  InputManager.JS_MainWaepon.input;
+                        *  (InputManager.JS_MainWaepon.input+InputManager.JS_Skill.input);
             angleDist = STARTUP.Angle(targetVec, transform.parent.rotation * Vector3.forward);
         }
         #endregion

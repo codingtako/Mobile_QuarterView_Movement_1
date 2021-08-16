@@ -10,38 +10,44 @@ public class EquipManager : MonoBehaviour
 {
 //----------------------------------------------------------------------------------------------------------------------    
     private Player player;
+    //WeaponUsage를 체크해서 스테이트를 바꾼다.
+    public enum WeaponUsage {None=0,Main=1,Sub=2,Both=3}
+    public WeaponUsage weaponUsage= WeaponUsage.None;
+    //첫 발도가 어떠한 조이스틱으로 된 것인지 기록,체크하는 용도이다.
+    public enum JS_Type { MainWeapon = 0,Skill =1 }
+    public JS_Type js_Type;
+    #region 컴포넌트
+    private FullBodyBipedIK ik;
+    private Animator anim;
+    #endregion
     #region 무기 모음
     public Weapon_Main testMain;
     public Weapon_Sub testSub;
-    [LabelText("생성된 메인 무기")]
-    [ReadOnly]
+    [HideInInspector]
     public Weapon_Main weaponMain;
-    [LabelText("생성된 서브 무기")]
-    [ReadOnly]
+    [HideInInspector]
     public Weapon_Sub weaponSub;
     #endregion
 
     #region IK,Layer관련 변수
-
-    public FullBodyBipedIK ik;
-    public int str_MoveIK_LeftHand;
-    public int str_MoveIK_RightHand;
-    public int str_MoveLayer_LeftHand;
-    public int str_MoveLayer_RightHand;
-    public string str_Unsheath;
-    public string str_Unsheath_Ready;
-    public string str_Sheath;
-    public string str_Sheath_Ready;
-    public string str_Unsheath_Left;
-    public string str_Unsheath_Ready_Left;
-    public string str_Sheath_Left;
-    public string str_Sheath_Ready_Left;
-    public string str_Unsheath_Right;
-    public string str_Unsheath_Ready_Right;
-    public string str_Sheath_Right;
-    public string str_Sheath_Ready_Right;
-    public string str_None;
-    public Animator anim;
+    private int str_MoveIK_LeftHand;
+    private int str_MoveIK_RightHand;
+    private int str_MoveLayer_LeftHand;
+    private int str_MoveLayer_RightHand;
+    private string str_Unsheath;
+    private string str_Unsheath_Ready;
+    private string str_Sheath;
+    private string str_Sheath_Ready;
+    private string str_Unsheath_Left;
+    private string str_Unsheath_Ready_Left;
+    private string str_Sheath_Left;
+    private string str_Sheath_Ready_Left;
+    private string str_Unsheath_Right;
+    private string str_Unsheath_Ready_Right;
+    private string str_Sheath_Right;
+    private string str_Sheath_Ready_Right;
+    private string str_None;
+    
     #endregion
 
     #region 착용 애니메이션
@@ -97,6 +103,12 @@ public class EquipManager : MonoBehaviour
         
         Create_Weapon(testMain,testSub);
     }
+
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.O)) weaponUsage = (WeaponUsage) (((int) weaponUsage + 1) % 4);
+        if (Input.GetKeyDown(KeyCode.O)) equipState_Main = (EquipState) (((int) equipState_Main + 1) % 6);
+    }
 //----------------------------------------------------------------------------------------------------------------------
     public void Create_Weapon(Weapon_Main main,Weapon_Sub sub)
     {
@@ -111,7 +123,7 @@ public class EquipManager : MonoBehaviour
             weaponSub.Move(weaponSub.sheathTransform);
             ik.solver.leftHandEffector.target = weaponSub.holdTransform;
         }
-        UpdateAnimator();
+        
     }
     public void Remove_Weapon()
     {
@@ -299,12 +311,12 @@ public class EquipManager : MonoBehaviour
     public void MoveLayer_LeftHand(float targetRatio,float duration)
     {
         DOTween.Kill(str_MoveLayer_LeftHand);
-        float testF=anim.GetLayerWeight(3);
+        float testF=anim.GetLayerWeight(2);
         
         DOTween.To(()=> testF, x=> testF = x, targetRatio, duration)
-            .SetId(str_MoveLayer_RightHand).OnUpdate(() =>
+            .SetId(str_MoveLayer_LeftHand).OnUpdate(() =>
             {
-                anim.SetLayerWeight(3,testF);
+                anim.SetLayerWeight(2,testF);
             });
 
 
@@ -313,7 +325,7 @@ public class EquipManager : MonoBehaviour
 
     #region Animator관련 함수
 
-    public void UpdateAnimator()
+    public AnimatorOverrideController UpdatedAnimatorOverrideController()
     {
         RuntimeAnimatorController myController = anim.runtimeAnimatorController;
 
@@ -348,6 +360,7 @@ public class EquipManager : MonoBehaviour
                 case Weapon_Sub.EquipType.dagger:
                     break;
                 case Weapon_Sub.EquipType.shield:
+                    
                     animatorOverride[str_Sheath_Ready_Left] = shield_Sheath_Ready;
                     animatorOverride[str_Sheath_Left] = shield_Sheath;
                     animatorOverride[str_Unsheath_Ready_Left] = shield_Unsheath_Ready;
@@ -359,9 +372,288 @@ public class EquipManager : MonoBehaviour
         
         
         
-        anim.runtimeAnimatorController = animatorOverride;
+        return animatorOverride;
     }
 
+    #endregion
+
+    #region SuperState
+        #region Left
+            #region FlowState
+            public void Unsheath_Ready_L_Enter()
+            {
+                anim.CrossFadeInFixedTime("Unsheath_Ready",
+                    weaponSub.unsheathReadyTransform.fadeDuration,2);
+                MoveIK_LeftHand(weaponSub.unsheathReadyTransform.ikActicateWeight,weaponSub.unsheathReadyTransform.ikDuration);
+                MoveLayer_LeftHand(1,weaponSub.unsheathReadyTransform.layerDuration);
+                weaponSub.Move(weaponSub.unsheathReadyTransform,weaponSub.unsheathReadyTransform.moveDelay);
+            }
+            public void Unsheath_L_Enter()
+            {
+                anim.CrossFadeInFixedTime("Unsheath",
+                    weaponSub.unsheathTransform.fadeDuration,2);
+                MoveIK_LeftHand(0.01f,weaponSub.unsheathTransform.ikDuration);
+                MoveLayer_LeftHand(0.01f,weaponSub.unsheathTransform.layerDuration);
+                weaponSub.Move(weaponSub.unsheathTransform,weaponSub.unsheathTransform.moveDelay);
+            }
+            public void Sheath_Ready_L_Enter()
+            {
+                anim.CrossFadeInFixedTime("Sheath_Ready",
+                    weaponSub.sheathReadyTransform.fadeDuration,2);
+                MoveIK_LeftHand( weaponSub.sheathReadyTransform.ikActicateWeight,weaponSub.sheathReadyTransform.ikDuration);
+                MoveLayer_LeftHand(1,weaponSub.sheathReadyTransform.layerDuration);
+                weaponSub.Move(weaponSub.sheathReadyTransform,weaponSub.sheathReadyTransform.moveDelay);
+            }
+            public void Sheath_L_Enter()
+            {
+                anim.CrossFadeInFixedTime("Sheath",
+                    weaponSub.sheathTransform.fadeDuration,2);
+                MoveIK_LeftHand(0.01f,weaponSub.sheathTransform.ikDuration);
+                MoveLayer_LeftHand(0.01f,weaponSub.sheathTransform.layerDuration);
+                weaponSub.Move(weaponSub.sheathTransform,weaponSub.sheathTransform.moveDelay);
+            }
+            public void Unsheath_Ready_L()
+            {
+                
+            }
+            public void Unsheath_L()
+            {
+                
+            }
+            public void Sheath_Ready_L()
+            {
+                
+            }
+            public void Sheath_L()
+            {
+                
+            }
+
+            public void None_Enter_L()
+            {
+                
+            }
+
+            public void None_L()
+            {
+                
+            }
+            #endregion
+            #region Transition
+            //최초로 발도 시작 할 때
+            public bool L_None2UnsheathReady()
+            {
+                if (weaponUsage != WeaponUsage.Both && weaponUsage != WeaponUsage.Sub) return false;
+                if (InputManager.JS_MainWaepon.isPressing)
+                {
+                    js_Type = JS_Type.MainWeapon;
+                    return true;
+                }
+                if (InputManager.JS_Skill.isPressing)
+                {
+                    js_Type = JS_Type.Skill;
+                    return true;
+                }
+                return false;
+            }
+            //발도 후 공격
+            public bool L_UnsheathReady2Unsheath()
+            {
+                switch (js_Type)
+                {
+                    case JS_Type.MainWeapon:
+                        if (!InputManager.JS_MainWaepon.isPressing 
+                            && !InputManager.JS_MainWaepon.canceled) return true;
+                        break;
+                    case JS_Type.Skill:
+                        if (!InputManager.JS_Skill.isPressing 
+                            && !InputManager.JS_Skill.canceled) return true;
+                        break;
+                }
+                return false;
+            }
+            //발도 캔슬 시
+            public bool L_UnsheathReady2Sheath()
+            {
+                switch (js_Type)
+                {
+                    case JS_Type.MainWeapon:
+                        if (!InputManager.JS_MainWaepon.isPressing 
+                            && InputManager.JS_MainWaepon.canceled) return true;
+                        break;
+                    case JS_Type.Skill:
+                        if (!InputManager.JS_Skill.isPressing 
+                            && InputManager.JS_Skill.canceled) return true;
+                        break;
+                }
+                return false;
+            }
+            //납도준비 애니메이션 플레이 후
+            public bool L_SheathReady2Sheath()
+            {
+                if (anim.GetCurrentAnimatorStateInfo(2).IsName("Sheath_Ready")
+                    && !anim.IsInTransition(2)
+                    && anim.GetCurrentAnimatorStateInfo(2).normalizedTime > 0.9f) return true;
+                return false;
+            }
+            //납도 애니메이션 플레이 후
+            public bool L_Sheath2None()
+            {  
+                if (anim.GetCurrentAnimatorStateInfo(2).IsName("Sheath")
+                   && !anim.IsInTransition(2)
+                   && anim.GetCurrentAnimatorStateInfo(2).normalizedTime > 0.9f) return true;
+                return false;
+            }
+            //발도상태에서 납도 할 때
+            public bool L_Unsheath2SheathReady()
+            {
+                if (player.playerState == Player.PlayerState.Attack) return false;
+                if (anim.GetCurrentAnimatorStateInfo(2).IsName("Unsheath")
+                    && !anim.IsInTransition(2)
+                    && anim.GetCurrentAnimatorStateInfo(2).normalizedTime > 0.9f
+                    && player.playerState!= Player.PlayerState.Attack) return true;
+                return false;
+            }
+            #endregion
+        #endregion
+        #region Right
+            #region FlowState
+            public void Unsheath_Ready_R_Enter()
+            {
+                anim.CrossFadeInFixedTime("Unsheath_Ready",
+                    weaponMain.unsheathReadyTransform.fadeDuration,3);
+                MoveIK_RightHand(weaponMain.unsheathReadyTransform.ikActicateWeight,weaponMain.unsheathReadyTransform.ikDuration);
+                MoveLayer_RightHand(1,weaponMain.unsheathReadyTransform.layerDuration);
+                weaponMain.Move(weaponMain.unsheathReadyTransform,weaponMain.unsheathReadyTransform.moveDelay);
+            }
+            public void Unsheath_R_Enter()
+            {
+                anim.CrossFadeInFixedTime("Unsheath",
+                    weaponMain.unsheathTransform.fadeDuration,3);
+                MoveIK_RightHand(0.01f,weaponMain.unsheathTransform.ikDuration);
+                MoveLayer_RightHand(0.01f,weaponMain.unsheathTransform.layerDuration);
+                weaponMain.Move(weaponMain.unsheathTransform,weaponMain.unsheathTransform.moveDelay);
+            }
+            public void Sheath_Ready_R_Enter()
+            {
+                anim.CrossFadeInFixedTime("Sheath_Ready",
+                    weaponMain.sheathReadyTransform.fadeDuration,3);
+                MoveIK_RightHand(weaponMain.sheathReadyTransform.ikActicateWeight,weaponMain.sheathReadyTransform.ikDuration);
+                MoveLayer_RightHand(1,weaponMain.sheathReadyTransform.layerDuration);
+                weaponMain.Move(weaponMain.sheathReadyTransform,weaponMain.sheathReadyTransform.moveDelay);
+            }
+            public void Sheath_R_Enter()
+            {
+                anim.CrossFadeInFixedTime("Sheath",
+                    weaponMain.sheathTransform.fadeDuration,3);
+                MoveIK_RightHand(0.01f,weaponMain.sheathTransform.ikDuration);
+                MoveLayer_RightHand(0.01f,weaponMain.sheathTransform.layerDuration);
+                weaponMain.Move(weaponMain.sheathTransform,weaponMain.sheathTransform.moveDelay);
+            }
+            public void Unsheath_Ready_R()
+            {
+                
+            }
+            public void Unsheath_R()
+            {
+                
+            }
+            public void Sheath_Ready_R()
+            {
+                
+            }
+            public void Sheath_R()
+            {
+                
+            }
+            
+            public void None_Enter_R()
+            {
+                
+            }
+
+            public void None_R()
+            {
+                
+            }
+            #endregion
+            #region Transition
+            //최초로 발도 시작 할 때
+            public bool R_None2UnsheathReady()
+            {
+                if (weaponUsage != WeaponUsage.Both && weaponUsage != WeaponUsage.Main) return false;
+                if (InputManager.JS_MainWaepon.isPressing)
+                {
+                    js_Type = JS_Type.MainWeapon;
+                    return true;
+                }
+                if (InputManager.JS_Skill.isPressing)
+                {
+                    js_Type = JS_Type.Skill;
+                    return true;
+                }
+                return false;
+            }
+            //발도 후 공격
+            public bool R_UnsheathReady2UnSheath()
+            {
+               
+                switch (js_Type)
+                {
+                    case JS_Type.MainWeapon:
+                        if (!InputManager.JS_MainWaepon.isPressing 
+                            && !InputManager.JS_MainWaepon.canceled) return true;
+                        break;
+                    case JS_Type.Skill:
+                        if (!InputManager.JS_Skill.isPressing 
+                            && !InputManager.JS_Skill.canceled) return true;
+                        break;
+                }
+                return false;
+            }
+            //발도 캔슬 시
+            public bool R_UnsheathReady2Sheath()
+            {
+                switch (js_Type)
+                {
+                    case JS_Type.MainWeapon:
+                        if (!InputManager.JS_MainWaepon.isPressing 
+                            && InputManager.JS_MainWaepon.canceled) return true;
+                        break;
+                    case JS_Type.Skill:
+                        if (!InputManager.JS_Skill.isPressing 
+                            && InputManager.JS_Skill.canceled) return true;
+                        break;
+                }
+                return false;
+            }
+            //납도준비 애니메이션 플레이 후
+            public bool R_SheathReady2Sheath()
+            {
+                if (anim.GetCurrentAnimatorStateInfo(3).IsName("Sheath_Ready")
+                    && !anim.IsInTransition(3)
+                    && anim.GetCurrentAnimatorStateInfo(3).normalizedTime > 0.9f) return true;
+                return false;
+            }
+            //납도 애니메이션 플레이 후
+            public bool R_Sheath2None()
+            {
+                if (anim.GetCurrentAnimatorStateInfo(3).IsName("Sheath")
+                    && !anim.IsInTransition(3)
+                    && anim.GetCurrentAnimatorStateInfo(3).normalizedTime > 0.9f) return true;
+                return false;
+            }
+            //발도상태에서 납도 할 때
+            public bool R_Unsheath2SheathReady()
+            {
+                if (player.playerState == Player.PlayerState.Attack) return false;
+                if (anim.GetCurrentAnimatorStateInfo(3).IsName("Unsheath")
+                    && !anim.IsInTransition(3)
+                    && anim.GetCurrentAnimatorStateInfo(3).normalizedTime > 0.9f) return true;
+                return false;
+            }
+            #endregion
+        #endregion
     #endregion
 //----------------------------------------------------------------------------------------------------------------------    
 }

@@ -18,16 +18,22 @@ public class Weapon_Sub : Weapon
         switch (equipType)
         {
             case EquipType.shield:
+                unsheathReadyTransform.parent = player.back;
                 unsheathTransform.parent = player.shield;
+                sheathReadyTransform.parent = player.shield;
                 sheathTransform.parent = player.back;
                 
                 break;
             case EquipType.bow:
+                unsheathReadyTransform.parent = player.leftHand;
                 unsheathTransform.parent = player.leftHand;
+                sheathReadyTransform.parent = player.back;
                 sheathTransform.parent = player.back;
                 break;
             case EquipType.dagger:
+                unsheathReadyTransform.parent = player.leftHand;
                 unsheathTransform.parent = player.leftHand;
+                sheathReadyTransform.parent = player.back;
                 sheathTransform.parent = player.back;
                 break;
         }

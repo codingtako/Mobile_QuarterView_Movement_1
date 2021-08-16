@@ -42,6 +42,7 @@ public class Joystick : MonoBehaviour,
     private bool lastPressed;
     public bool touchControl = true;
     public bool checkMinDist = true;
+    public bool isPressing = false;
     
     public virtual void Start()
     {
@@ -72,17 +73,20 @@ public class Joystick : MonoBehaviour,
             if (lastPressed)onReleased.Invoke();
         }
 
+        isPressing = pressed;
         lastPressed = pressed;
     }
 
     public virtual void OnPointerDown(PointerEventData data)
     {
         if (!touchControl) return;
+        isPressing = true;
         canceled = false;
         img_BG.position = data.position;
         img_Button.position = data.position;
         
         input = Vector3.zero;
+        
     }
     public virtual void OnDrag(PointerEventData data)
     {
@@ -101,6 +105,7 @@ public class Joystick : MonoBehaviour,
             Vector3 inputDist = new Vector3( data.position.x, data.position.y,0) - img_BG.position;
             input = new Vector3(inputDist.x,0,inputDist.y).normalized;
             lastInput = input;
+            canceled = false;
         }
         //적당히 이동한 경우
         else if (dist > minDist||!checkMinDist)
@@ -110,6 +115,7 @@ public class Joystick : MonoBehaviour,
             Vector3 inputDist = new Vector3( data.position.x, data.position.y,0) - img_BG.position;
             input = new Vector3(inputDist.x,0,inputDist.y).normalized;
             lastInput = input;
+            canceled = false;
         }
         //너무 조금 이동한 경우
         else
@@ -123,7 +129,7 @@ public class Joystick : MonoBehaviour,
     public virtual void OnPointerUp(PointerEventData data)
     {
         if (!touchControl) return;
-        
+        isPressing = false;
         img_BG.position = startPos;
         img_Button.position = startPos;
 

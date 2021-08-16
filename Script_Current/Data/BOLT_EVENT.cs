@@ -11,11 +11,17 @@ public class NB_Roll_Down : IDefinedEvent
     {
     
     }
+
 [IncludeInSettings(true)]
 public class NB_Roll_Up : IDefinedEvent
-    {
+{
+
+}
+[IncludeInSettings(true)]
+public class Bolt_Attack: IDefinedEvent
+{
     
-    }
+}
 #endregion
 #region
 [IncludeInSettings(true)]
