@@ -9,9 +9,10 @@ using Sirenix.OdinInspector;
 public class Motion : ScriptableObject
 
 {
-    public AnimationClip attack_Ready;
+    public ReadyMotionSet readyMotionSet;
+    public float attackReadySpeed=1;
     public AnimationClip attack;
-    
+    public float attackSpeed=1;
     #region 포즈
     public enum Pose { LS_LF=0,LS_RF=1,RS_LF=2,RS_RF=3 }
     
@@ -22,6 +23,9 @@ public class Motion : ScriptableObject
     [BoxGroup("포즈")]
     [LabelText("마무리 포즈")]
     public Pose pose_Finish;
+    [BoxGroup("포즈")]
+    [LabelText("동작 형태")]
+    public ReadyMotionSet.MotionType poseMotionType;
     //공백
     [ShowInInspector]
     [ReadOnly]
@@ -38,15 +42,14 @@ public class Motion : ScriptableObject
     [LabelText("커멘드")]
     [BoxGroup("조작,연계")]
     public Command command;
-    [LabelText("다음 커멘드 목록")]
-    [BoxGroup("조작,연계")]
-    public List<Command> nextCommands = new List<Command>();
-
-    [LabelText("트렌지션 시간")] [BoxGroup("조작,연계")]
+    [LabelText("Ready 트렌지션 시간")] [BoxGroup("조작,연계")]
     public float readyTransitionDuration = 0.1f;
-
-    [LabelText("ready 후 재생비율")] [BoxGroup("조작,연계")]
-    public float readyTransitionNoramlizedTime = 0.05f;
+    [LabelText("Attack 트렌지션 시간")] [BoxGroup("조작,연계")]
+    public float attackTransitionDuration = 0.1f;
+    [LabelText("Ready의 트렌지션 전 ratio")] [BoxGroup("조작,연계")]
+    public float readyTransitionNoramlizedTime = 0.9f;
+    [LabelText("Attack의 트렌지션 후 ratio")] [BoxGroup("조작,연계")]
+    public float attackTransitionNoramlizedTime = 0.05f;
     //공백
     [ShowInInspector]
     [ReadOnly]
@@ -57,48 +60,25 @@ public class Motion : ScriptableObject
     #region 애니메이션 상태
     [Space]
     [BoxGroup("애니메이션 상태")]
-    [MinMaxSlider(0,1,true)]
+    [MinMaxSlider(0,0.98f,true)]
     public Vector2 anticipation;
     [BoxGroup("애니메이션 상태")]
-    [MinMaxSlider(0,1,true)]
+    [MinMaxSlider(0,0.98f,true)]
     public Vector2 contact;
     [BoxGroup("애니메이션 상태")]
-    [MinMaxSlider(0,1,true)]
+    [MinMaxSlider(0,0.98f,true)]
     public Vector2 delay;
     [BoxGroup("애니메이션 상태")]
-    [MinMaxSlider(0,1,true)]
+    [MinMaxSlider(0,0.98f,true)]
     public Vector2 recovery;
+    [BoxGroup("애니메이션 상태")][Space]
+    [MinMaxSlider(0,0.98f,true)]
+    public Vector2 delayAttack;
     
     //공백
     [ShowInInspector]
     [ReadOnly]
     [HideLabel]
     private bool _5;
-    #endregion
-
-    #region 특수 커멘드
-    [BoxGroup("특수 커멘드")]
-    [ShowIf("Check_Command_DelayAttack")]
-    [Space]
-    [MinMaxSlider(0,1,true)]
-    public Vector2 delayAttack;
-    [BoxGroup("특수 커멘드")]
-    [ShowIf("Check_Command_ChargeAttack")]
-    [MinMaxSlider(0,1,true)]
-    public Vector2 chargeAttack;
-    #endregion
-    
-    
-    #region Odin_Bool
-    public bool Check_Command_DelayAttack()
-    {
-            return nextCommands.Contains(Command.Delay);
-        
-    }
-    public bool Check_Command_ChargeAttack()
-    {
-        return nextCommands.Contains(Command.Charge);
-        
-    }
     #endregion
 }

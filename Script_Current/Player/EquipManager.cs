@@ -11,11 +11,11 @@ public class EquipManager : MonoBehaviour
 //----------------------------------------------------------------------------------------------------------------------    
     private Player player;
     //WeaponUsage를 체크해서 스테이트를 바꾼다.
+    public enum JS_Type{Normal=0,Strong=1}
+
+    public JS_Type js_Type;
     public enum WeaponUsage {None=0,Main=1,Sub=2,Both=3}
     public WeaponUsage weaponUsage= WeaponUsage.None;
-    //첫 발도가 어떠한 조이스틱으로 된 것인지 기록,체크하는 용도이다.
-    public enum JS_Type { MainWeapon = 0,Skill =1 }
-    public JS_Type js_Type;
     #region 컴포넌트
     private FullBodyBipedIK ik;
     private Animator anim;
@@ -70,6 +70,17 @@ public class EquipManager : MonoBehaviour
             public AnimationClip shield_Unsheath_Ready,shield_Unsheath,shield_Sheath_Ready,shield_Sheath;
             #endregion
         #endregion
+        //-----------------------------------
+        private AnimationClip L_UnsheathReady;
+        private AnimationClip L_Unsheath;
+        private AnimationClip L_SheathReady;
+        private AnimationClip L_Sheath;
+        //-----------------------------------
+        private AnimationClip R_UnsheathReady;
+        private AnimationClip R_Unsheath;
+        private AnimationClip R_SheathReady;
+        private AnimationClip R_Sheath;
+        //-----------------------------------
     #endregion
     public enum EquipState
     {
@@ -108,6 +119,7 @@ public class EquipManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.O)) weaponUsage = (WeaponUsage) (((int) weaponUsage + 1) % 4);
         if (Input.GetKeyDown(KeyCode.O)) equipState_Main = (EquipState) (((int) equipState_Main + 1) % 6);
+        
     }
 //----------------------------------------------------------------------------------------------------------------------
     public void Create_Weapon(Weapon_Main main,Weapon_Sub sub)
@@ -134,121 +146,6 @@ public class EquipManager : MonoBehaviour
         weaponSub = null;
     }
     #region 상태 설정 함수
-    [Button]
-    public void Set_EquipState_Main(EquipState state)
-    {
-        bool moveMain = true;
-        float layerDuration=0.2f,ikDuration=0.3f, fadeDuration = 0.1f,delay = 0.2f;
-        #region 각 무기들을 보고, 메인,서브 움직일지 확인
-
-        
-
-        #endregion
-        equipState_Main = state;
-        switch (state)
-        {
-            case EquipState.None:
-                MoveLayer_RightHand(0.01f,layerDuration);
-                MoveIK_RightHand(0.01f,ikDuration);
-                anim.CrossFadeInFixedTime(str_None,fadeDuration,3);
-                
-                break;
-            case EquipState.Unsheath_Ready:
-                if (moveMain)
-                {
-                    MoveLayer_RightHand(1,layerDuration);
-                    MoveIK_RightHand(1,ikDuration);
-                    anim.CrossFadeInFixedTime(str_Unsheath_Ready,fadeDuration,3);
-                }
-                break;
-            case EquipState.Unsheath:
-                if (moveMain)
-                {
-                    weaponMain.Move(weaponMain.unsheathTransform);
-                    MoveLayer_RightHand(0.01f,layerDuration);
-                    MoveIK_RightHand(0.01f,ikDuration);
-                    anim.CrossFadeInFixedTime(str_Unsheath,fadeDuration,3);
-                }
-                break;
-            case EquipState.Sheath_Ready:
-                if (moveMain)
-                {
-                    MoveLayer_RightHand(0.01f,layerDuration);
-                    MoveIK_RightHand(0.01f,ikDuration);
-                    anim.CrossFadeInFixedTime(str_Sheath_Ready,fadeDuration,3);
-                }
-                break;
-            case EquipState.Sheath:
-                if (moveMain)
-                {
-                    weaponMain.Move(weaponMain.sheathTransform,delay);
-                    MoveLayer_RightHand(0.01f,layerDuration);
-                    MoveIK_RightHand(0.01f,ikDuration);
-                    anim.CrossFadeInFixedTime(str_Sheath,fadeDuration,3);
-                }
-                break;
-            case EquipState.Unarm:
-                break;
-        }
-        print("Main");
-    }
-    [Button]
-    public void Set_EquipState_Sub(EquipState state)
-    {
-        bool moveSub = true;
-        float layerDuration=0.2f,ikDuration=0.3f, fadeDuration = 0.1f;
-        #region 각 무기들을 보고, 메인,서브 움직일지 확인
-
-        
-
-        #endregion
-        equipState_Sub = state;
-        switch (state)
-        {
-            case EquipState.None:
-                MoveLayer_LeftHand(0.01f,layerDuration);
-                //MoveIK_LeftHand(0.01f,ikDuration);
-                anim.CrossFadeInFixedTime(str_None,fadeDuration,2);
-                break;
-            case EquipState.Unsheath_Ready:
-                if (moveSub)
-                {
-                    MoveLayer_LeftHand(1,layerDuration);
-                    MoveIK_LeftHand(1,ikDuration);
-                    anim.CrossFadeInFixedTime(str_Unsheath_Ready,fadeDuration,2);
-                }
-                break;
-            case EquipState.Unsheath:
-                if (moveSub)
-                {
-                    weaponSub.Move(weaponSub.unsheathTransform);
-                    MoveLayer_LeftHand(0.01f,layerDuration);
-                    MoveIK_LeftHand(0.01f,ikDuration);
-                    anim.CrossFadeInFixedTime(str_Unsheath,fadeDuration,2);
-                }
-                break;
-            case EquipState.Sheath_Ready:
-                if (moveSub)
-                {
-                    MoveLayer_LeftHand(0.01f,layerDuration);
-                    MoveIK_LeftHand(0.01f,ikDuration);
-                    anim.CrossFadeInFixedTime(str_Sheath_Ready,fadeDuration,2);
-                }
-                break;
-            case EquipState.Sheath:
-                if (moveSub)
-                {
-                    weaponSub.Move(weaponSub.sheathTransform);
-                    MoveLayer_LeftHand(0.01f,layerDuration);
-                    MoveIK_LeftHand(0.01f,ikDuration);
-                    anim.CrossFadeInFixedTime(str_Sheath,fadeDuration,2);
-                }
-                break;
-            case EquipState.Unarm:
-                break;
-        }
-        print("Sub");
-    }
     [Button]
     public void Change()
     {
@@ -336,20 +233,36 @@ public class EquipManager : MonoBehaviour
         animatorOverride.runtimeAnimatorController = myController;
 
         #region 장착 모션
-        switch (weaponMain.equipType)
+
+        if (weaponMain != null)
         {
-            case Weapon_Main.EquipType.oneHand_Sword:
-                animatorOverride[str_Sheath_Ready_Right] = oneHand_Sheath_Ready;
-                animatorOverride[str_Sheath_Right] = oneHand_Sheath;
-                animatorOverride[str_Unsheath_Ready_Right] = oneHand_Unsheath_Ready;
-                animatorOverride[str_Unsheath_Right] = oneHand_Unsheath;
-                break;
-            case Weapon_Main.EquipType.twoHand_Sword:
-                animatorOverride[str_Sheath_Ready_Right] = twoHand_Sheath_Ready;
-                animatorOverride[str_Sheath_Right] = twoHand_Sheath;
-                animatorOverride[str_Unsheath_Ready_Right] = twoHand_Unsheath_Ready;
-                animatorOverride[str_Unsheath_Right] = twoHand_Unsheath;
-                break;
+            switch (weaponMain.equipType)
+            {
+                case Weapon_Main.EquipType.oneHand_Sword:
+                    animatorOverride[str_Sheath_Ready_Right] = oneHand_Sheath_Ready;
+                    animatorOverride[str_Sheath_Right] = oneHand_Sheath;
+                    animatorOverride[str_Unsheath_Ready_Right] = oneHand_Unsheath_Ready;
+                    animatorOverride[str_Unsheath_Right] = oneHand_Unsheath;
+                    R_SheathReady = oneHand_Sheath_Ready;
+                    R_Sheath = oneHand_Sheath;
+                    R_UnsheathReady = oneHand_Unsheath_Ready;
+                    R_Unsheath = oneHand_Unsheath;
+                    break;
+                case Weapon_Main.EquipType.twoHand_Sword:
+                    animatorOverride[str_Sheath_Ready_Right] = twoHand_Sheath_Ready;
+                    animatorOverride[str_Sheath_Right] = twoHand_Sheath;
+                    animatorOverride[str_Unsheath_Ready_Right] = twoHand_Unsheath_Ready;
+                    animatorOverride[str_Unsheath_Right] = twoHand_Unsheath;
+                    R_SheathReady = twoHand_Sheath_Ready;
+                    R_Sheath = twoHand_Sheath;
+                    R_UnsheathReady = twoHand_Unsheath_Ready;
+                    R_Unsheath = twoHand_Unsheath;
+                    break;
+            }
+            anim.SetFloat("R_UnsheathReady",weaponMain.UnsheathReadySpeed);
+            anim.SetFloat("R_Unsheath",weaponMain.UnsheathSpeed);
+            anim.SetFloat("R_SheathReady",weaponMain.SheathReadySpeed);
+            anim.SetFloat("R_Sheath",weaponMain.SheathSpeed);
         }
         if (weaponSub != null)
         {
@@ -365,9 +278,19 @@ public class EquipManager : MonoBehaviour
                     animatorOverride[str_Sheath_Left] = shield_Sheath;
                     animatorOverride[str_Unsheath_Ready_Left] = shield_Unsheath_Ready;
                     animatorOverride[str_Unsheath_Left] = shield_Unsheath;
+                    L_SheathReady = shield_Sheath_Ready;
+                    L_Sheath = shield_Sheath;
+                    L_UnsheathReady = shield_Unsheath_Ready;
+                    L_Unsheath = shield_Unsheath;
                     break;
             }
+            anim.SetFloat("L_UnsheathReady",weaponSub.UnsheathReadySpeed);
+            anim.SetFloat("L_Unsheath",weaponSub.UnsheathSpeed);
+            anim.SetFloat("L_SheathReady",weaponSub.SheathReadySpeed);
+            anim.SetFloat("L_Sheath",weaponSub.SheathSpeed);
         }
+        
+        
         #endregion
         
         
@@ -376,8 +299,8 @@ public class EquipManager : MonoBehaviour
     }
 
     #endregion
-
-    #region SuperState
+    
+     #region SuperState
         #region Left
             #region FlowState
             public void Unsheath_Ready_L_Enter()
@@ -443,32 +366,33 @@ public class EquipManager : MonoBehaviour
             //최초로 발도 시작 할 때
             public bool L_None2UnsheathReady()
             {
+                //왼손을 안쓰는 경우 false
                 if (weaponUsage != WeaponUsage.Both && weaponUsage != WeaponUsage.Sub) return false;
-                if (InputManager.JS_MainWaepon.isPressing)
+                //조이스틱을 누르고 있는 경우 true
+                if (InputManager.IsPressingJS())
                 {
-                    js_Type = JS_Type.MainWeapon;
                     return true;
                 }
-                if (InputManager.JS_Skill.isPressing)
+                //선입력 있는 경우 true + jsType 설정
+                else if(InputManager.PreInput_JS_Normal())
                 {
-                    js_Type = JS_Type.Skill;
+                    js_Type = JS_Type.Normal;
+                    return true;
+                }
+                else if(InputManager.PreInput_JS_Strong())
+                {
+                    js_Type = JS_Type.Strong;
                     return true;
                 }
                 return false;
             }
-            //발도 후 공격
+            //발도
             public bool L_UnsheathReady2Unsheath()
             {
-                switch (js_Type)
+                if (player.playerState == Player.PlayerState.Attack
+                    && weaponUsage != WeaponUsage.None && weaponUsage != WeaponUsage.Main)
                 {
-                    case JS_Type.MainWeapon:
-                        if (!InputManager.JS_MainWaepon.isPressing 
-                            && !InputManager.JS_MainWaepon.canceled) return true;
-                        break;
-                    case JS_Type.Skill:
-                        if (!InputManager.JS_Skill.isPressing 
-                            && !InputManager.JS_Skill.canceled) return true;
-                        break;
+                    return true;
                 }
                 return false;
             }
@@ -477,11 +401,11 @@ public class EquipManager : MonoBehaviour
             {
                 switch (js_Type)
                 {
-                    case JS_Type.MainWeapon:
+                    case JS_Type.Normal:
                         if (!InputManager.JS_MainWaepon.isPressing 
                             && InputManager.JS_MainWaepon.canceled) return true;
                         break;
-                    case JS_Type.Skill:
+                    case JS_Type.Strong:
                         if (!InputManager.JS_Skill.isPressing 
                             && InputManager.JS_Skill.canceled) return true;
                         break;
@@ -507,11 +431,7 @@ public class EquipManager : MonoBehaviour
             //발도상태에서 납도 할 때
             public bool L_Unsheath2SheathReady()
             {
-                if (player.playerState == Player.PlayerState.Attack) return false;
-                if (anim.GetCurrentAnimatorStateInfo(2).IsName("Unsheath")
-                    && !anim.IsInTransition(2)
-                    && anim.GetCurrentAnimatorStateInfo(2).normalizedTime > 0.9f
-                    && player.playerState!= Player.PlayerState.Attack) return true;
+                if (player.playerState != Player.PlayerState.Attack) return true;
                 return false;
             }
             #endregion
@@ -581,33 +501,33 @@ public class EquipManager : MonoBehaviour
             //최초로 발도 시작 할 때
             public bool R_None2UnsheathReady()
             {
+                //오른손을 안쓰는 경우 false
                 if (weaponUsage != WeaponUsage.Both && weaponUsage != WeaponUsage.Main) return false;
-                if (InputManager.JS_MainWaepon.isPressing)
+                //조이스틱을 누르고 있는 경우 true
+                if (InputManager.IsPressingJS())
                 {
-                    js_Type = JS_Type.MainWeapon;
                     return true;
                 }
-                if (InputManager.JS_Skill.isPressing)
+                //선입력 있는 경우 true + jsType 설정
+                else if(InputManager.PreInput_JS_Normal())
                 {
-                    js_Type = JS_Type.Skill;
+                    js_Type = JS_Type.Normal;
+                    return true;
+                }
+                else if(InputManager.PreInput_JS_Strong())
+                {
+                    js_Type = JS_Type.Strong;
                     return true;
                 }
                 return false;
             }
-            //발도 후 공격
-            public bool R_UnsheathReady2UnSheath()
+            //발도
+            public bool R_UnsheathReady2Unsheath()
             {
-               
-                switch (js_Type)
+                if (player.playerState == Player.PlayerState.Attack
+                    && weaponUsage != WeaponUsage.None && weaponUsage != WeaponUsage.Sub)
                 {
-                    case JS_Type.MainWeapon:
-                        if (!InputManager.JS_MainWaepon.isPressing 
-                            && !InputManager.JS_MainWaepon.canceled) return true;
-                        break;
-                    case JS_Type.Skill:
-                        if (!InputManager.JS_Skill.isPressing 
-                            && !InputManager.JS_Skill.canceled) return true;
-                        break;
+                    return true;
                 }
                 return false;
             }
@@ -616,11 +536,11 @@ public class EquipManager : MonoBehaviour
             {
                 switch (js_Type)
                 {
-                    case JS_Type.MainWeapon:
+                    case JS_Type.Normal:
                         if (!InputManager.JS_MainWaepon.isPressing 
                             && InputManager.JS_MainWaepon.canceled) return true;
                         break;
-                    case JS_Type.Skill:
+                    case JS_Type.Strong:
                         if (!InputManager.JS_Skill.isPressing 
                             && InputManager.JS_Skill.canceled) return true;
                         break;
@@ -646,14 +566,47 @@ public class EquipManager : MonoBehaviour
             //발도상태에서 납도 할 때
             public bool R_Unsheath2SheathReady()
             {
-                if (player.playerState == Player.PlayerState.Attack) return false;
-                if (anim.GetCurrentAnimatorStateInfo(3).IsName("Unsheath")
-                    && !anim.IsInTransition(3)
-                    && anim.GetCurrentAnimatorStateInfo(3).normalizedTime > 0.9f) return true;
+                if (player.playerState != Player.PlayerState.Attack) return true;
                 return false;
             }
             #endregion
         #endregion
+
+        public void Attack()
+        {
+            
+        }
     #endregion
+
+    public bool IsAttackReady()
+    {
+        if (weaponUsage == WeaponUsage.None) return false;
+        //캔슬된 경우 false
+        if (InputManager.JS_MainWaepon.canceled || InputManager.JS_Skill.canceled) return false;
+        //print("1");
+        //왼손 애니메이션 플레이 안된 경우 false
+        if (weaponUsage != WeaponUsage.None && weaponUsage != WeaponUsage.Main)
+        {
+            bool checkState = anim.GetCurrentAnimatorStateInfo(2).IsName("Unsheath_Ready");
+            bool checkFinish = anim.GetCurrentAnimatorStateInfo(2).normalizedTime> 0.9f;
+            if (!checkState || !checkFinish || anim.IsInTransition(2)) return false;
+        }
+        //print("2");
+        //오른손 애니메이션 플레이 안된 경우 false
+        if (weaponUsage != WeaponUsage.None && weaponUsage != WeaponUsage.Sub)
+        {
+            bool checkState = anim.GetCurrentAnimatorStateInfo(3).IsName("Unsheath_Ready");
+            bool checkFinish = anim.GetCurrentAnimatorStateInfo(3).normalizedTime> 0.9f;
+            if (!checkState || !checkFinish || anim.IsInTransition(3)) return false;
+        }
+        //print("3");
+        //선입력 있는 경우 true
+        if (InputManager.Have_JS_PreInput())
+        {
+            return true;
+        }
+        
+        return false;
+    }
 //----------------------------------------------------------------------------------------------------------------------    
 }

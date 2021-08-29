@@ -40,9 +40,9 @@ public class GM : MonoBehaviour
     #endregion
 
     public static Bolt_Attack bolt_Attack = new Bolt_Attack();
-
-    
-
+    public static Bolt_AttackFinish bolt_AttackFinish = new Bolt_AttackFinish();
+    public static Bolt_LeftHandAttack bolt_LeftHandAttack = new Bolt_LeftHandAttack();
+    public static Bolt_RightHandAttack bolt_RightHandAttack = new Bolt_RightHandAttack();
     
 
     public UnityEvent EUpdate;

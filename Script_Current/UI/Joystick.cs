@@ -8,7 +8,7 @@ using Sirenix.OdinInspector;
 using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 
-public class Joystick : MonoBehaviour,
+public class Joystick : PreInput,
                             IPointerDownHandler,
                             IPointerUpHandler,
                             IDragHandler
@@ -62,7 +62,11 @@ public class Joystick : MonoBehaviour,
             img_Button.position = Vector3.Lerp(img_Button.position,img_BG.position+targetInput*maxDist,stickSpeed*Time.deltaTime);
             input = new Vector3(Input.GetAxisRaw(horizontalAxis),0,Input.GetAxisRaw(verticalAxis)).normalized;
             lastInput = input;
-            if(!lastPressed) onDragBegin.Invoke();
+            if (!lastPressed)
+            {
+                Pressed();
+                onDragBegin.Invoke();
+            }
         }
         else
         {
@@ -70,7 +74,12 @@ public class Joystick : MonoBehaviour,
             img_Button.position = Vector3.Lerp(img_Button.position,img_BG.position,stickSpeed*Time.deltaTime);
 
             input = Vector3.zero;
-            if (lastPressed)onReleased.Invoke();
+            if (lastPressed)
+            {
+                Released();
+                isCalled = true;
+                onReleased.Invoke();
+            }
         }
 
         isPressing = pressed;
@@ -80,6 +89,7 @@ public class Joystick : MonoBehaviour,
     public virtual void OnPointerDown(PointerEventData data)
     {
         if (!touchControl) return;
+        Pressed();
         isPressing = true;
         canceled = false;
         img_BG.position = data.position;
@@ -129,6 +139,8 @@ public class Joystick : MonoBehaviour,
     public virtual void OnPointerUp(PointerEventData data)
     {
         if (!touchControl) return;
+        Released();
+        isCalled = true;
         isPressing = false;
         img_BG.position = startPos;
         img_Button.position = startPos;

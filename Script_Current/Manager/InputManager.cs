@@ -33,9 +33,37 @@ public class InputManager : MonoBehaviour
         NB_Roll = _NB_Roll;
     }
 
-    // Update is called once per frame
-    void Update()
+    public static bool IsPressingJS()
     {
-        
+        return JS_MainWaepon.isPressing || JS_Skill.isPressing;
+    }
+
+    public static bool Have_JS_PreInput()
+    {
+        bool normal_PreInput = (JS_MainWaepon.isCalled && Time.time - JS_MainWaepon.releasedTime < JS_MainWaepon.delay);
+        bool strong_PreInput = (JS_Skill.isCalled && Time.time - JS_Skill.releasedTime < JS_Skill.delay);
+        return normal_PreInput || strong_PreInput;
+    }
+    public static bool PreInput_JS_Normal()
+    {
+        bool normal_PreInput = (JS_MainWaepon.isCalled && Time.time - JS_MainWaepon.releasedTime < JS_MainWaepon.delay);
+        bool strong_PreInput = (JS_Skill.isCalled && Time.time - JS_Skill.releasedTime < JS_Skill.delay);
+        if (normal_PreInput)
+        {
+            if (strong_PreInput&& JS_MainWaepon.releasedTime>JS_Skill.releasedTime)return false;
+            else return true;
+        }
+        else return false;
+    }
+    public static bool PreInput_JS_Strong()
+    {
+        bool normal_PreInput = (JS_MainWaepon.isCalled && Time.time - JS_MainWaepon.releasedTime < JS_MainWaepon.delay);
+        bool strong_PreInput = (JS_Skill.isCalled && Time.time - JS_Skill.releasedTime < JS_Skill.delay);
+        if (strong_PreInput)
+        {
+            if (normal_PreInput&& JS_MainWaepon.releasedTime<JS_Skill.releasedTime)return false;
+            else return true;
+        }
+        else return false;
     }
 }

@@ -9,6 +9,8 @@ public class Weapon : MonoBehaviour
 {
     public enum WeaponTag { One_Hand=1<<0,Two_Hand=1<<1,Blade=1<<2,Axe=1<<3,Blunt=1<<4 }
     protected Player player;
+    [BoxGroup("EquipSpeed")] public float UnsheathReadySpeed = 1, UnsheathSpeed = 1, SheathReadySpeed = 1, SheathSpeed = 1;
+
     [HideInInspector] public TrailEffect trail;
     [System.Serializable]
     public class TargetTransform

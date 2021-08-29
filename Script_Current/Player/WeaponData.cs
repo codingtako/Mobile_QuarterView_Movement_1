@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class WeaponData : MonoBehaviour
 {
+    
     #region State해쉬
     [ShowInInspector][HorizontalGroup("DIC")]
     public Dictionary<int, string> Commands_State = new Dictionary<int, string>();
@@ -77,22 +78,7 @@ public class WeaponData : MonoBehaviour
         foreach (var motion in skill.GetMotions())
         {
             int _command=0;
-            switch (motion.command)
-            {
-                case Motion.Command.Normal:
-                    if (!isSpecial) _command = 1;
-                    else _command = 9;
-                    break;
-                case Motion.Command.Delay:
-                    if (!isSpecial) _command = 2;
-                    else _command = 8;
-                    break;
-                case Motion.Command.Charge:
-                    if (!isSpecial) _command = 3;
-                    else _command = 7;
-                    break;
-
-            }
+            _command = Convert_Command(motion.command, isSpecial);
             if(preCommands.Contains(preCommand)) preCommands.Remove(preCommand);
             
             preCommand *= 10;
@@ -107,8 +93,47 @@ public class WeaponData : MonoBehaviour
         }
         #endregion
     }
-    [Button(ButtonSizes.Medium,Expanded = true)]
+    public int Convert_Command(Motion.Command command,bool isStrong)
+    {
+        switch (command)
+        {
+            case Motion.Command.Normal:
+                if (isStrong)
+                {
+                    return 9;
+                }
+                else
+                {
+                    return 1;
+                }
+                break;
+            case Motion.Command.Delay:
+                if (isStrong)
+                {
+                    return 2;
+                }
+                else
+                {
+                    return 8;
+                }
+                break;
+            case Motion.Command.Charge:
+                if (isStrong)
+                {
+                    return 3;
+                }
+                else
+                {
+                    return 7;
+                }
+                break;
+        }
+
+        return 0;
+    }
+    
     //------------------------------------------------------------------------------------------------------------------
+    [Button(ButtonSizes.Medium,Expanded = true)]
     public void ClearData()
     {
         Commands.Clear();
@@ -134,19 +159,6 @@ public class WeaponData : MonoBehaviour
         {
             Commands_State.Add(Commands[i],"Attack "+i.ToString());
             Commands_ReadyState.Add(Commands[i],"Attack_Ready "+i.ToString());
-            /*
-            if (Commands[i] < 10)
-            {
-                if (Commands[i] >= 5)
-                {
-                    skill_Ready_State = "Attack_Ready " + i.ToString();
-                }
-                else
-                {
-                    normal_Ready_State = "Attack_Ready " + i.ToString();
-                }
-            }
-            */
         }
         
         AnimatorOverrideController animatorOverride =equipManager.UpdatedAnimatorOverrideController();
@@ -158,14 +170,55 @@ public class WeaponData : MonoBehaviour
         {
             //if(i== skill_Ready_Index|| i==normal_Ready_Index) continue;
             animatorOverride[Commands_State[Commands[i]]] = Motions[i].attack;
-            animatorOverride[Commands_ReadyState[Commands[i]]] = Motions[i].attack_Ready;
+            if (i > 0)
+            {
+                animatorOverride[Commands_ReadyState[Commands[i]]] = Motions[i].readyMotionSet
+                    .Get_ReadyClip(Motions[i-1].poseMotionType,Motions[i].poseMotionType);
+            }
+            else
+            {
+                animatorOverride[Commands_ReadyState[Commands[i]]] = Motions[i].readyMotionSet
+                    .Get_FirstReadyClip(Motions[i].poseMotionType);
+            }
+            
 
         }
         #endregion
 
         anim.runtimeAnimatorController = animatorOverride;
     }
-    
+
+    public Skill Command_Skill(int command)
+    {
+        int index = Commands.IndexOf(command);
+        return Skills[index];
+    }
+
+    public Motion Command_Motion(int command)
+    {
+        int index = Commands.IndexOf(command);
+        return Motions[index];
+    }
+    public Skill Command_BeforeSkill(int command)
+    {
+        if (command < 10)
+        {
+            Debug.LogError("두번째 이상의 커멘드를 입력하세요!");
+            return null;
+        }
+        int index = Commands.IndexOf((int)(command*0.1f));
+        return Skills[index];
+    }
+    public Motion Command_BeforeMotion(int command)
+    {
+        if (command < 10)
+        {
+            Debug.LogError("두번째 이상의 커멘드를 입력하세요!");
+            return null;
+        }
+        int index = Commands.IndexOf((int)(command*0.1f));
+        return Motions[index];
+    }
 
     #endregion
 }

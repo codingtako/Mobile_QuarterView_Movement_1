@@ -22,6 +22,21 @@ public class Bolt_Attack: IDefinedEvent
 {
     
 }
+[IncludeInSettings(true)]
+public class Bolt_AttackFinish: IDefinedEvent
+{
+    
+}
+[IncludeInSettings(true)]
+public class Bolt_LeftHandAttack: IDefinedEvent
+{
+    
+}
+[IncludeInSettings(true)]
+public class Bolt_RightHandAttack: IDefinedEvent
+{
+    
+}
 #endregion
 #region
 [IncludeInSettings(true)]
