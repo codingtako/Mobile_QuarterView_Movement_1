@@ -185,7 +185,24 @@ public class WeaponData : MonoBehaviour
         }
         #endregion
 
+        
         anim.runtimeAnimatorController = animatorOverride;
+
+        if (equipManager.weaponMain != null)
+        {
+            anim.SetFloat("R_UnsheathReady",equipManager.weaponMain.UnsheathReadySpeed);
+            anim.SetFloat("R_Unsheath",equipManager.weaponMain.UnsheathSpeed);
+            anim.SetFloat("R_SheathReady",equipManager.weaponMain.SheathReadySpeed);
+            anim.SetFloat("R_Sheath",equipManager.weaponMain.SheathSpeed);
+        }
+
+        if (equipManager.weaponSub != null)
+        {
+            anim.SetFloat("L_UnsheathReady",equipManager.weaponSub.UnsheathReadySpeed);
+            anim.SetFloat("L_Unsheath",equipManager.weaponSub.UnsheathSpeed);
+            anim.SetFloat("L_SheathReady",equipManager.weaponSub.SheathReadySpeed);
+            anim.SetFloat("L_Sheath",equipManager.weaponSub.SheathSpeed);
+        }
     }
 
     public Skill Command_Skill(int command)

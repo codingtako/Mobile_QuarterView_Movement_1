@@ -112,13 +112,11 @@ public class Player : MonoBehaviour
                     {
                         
                         currentCommand = weaponData.Convert_Command(Motion.Command.Normal, false);
-                        print("NORMAL");
                     }
                     else if (equipManager.js_Type == EquipManager.JS_Type.Strong)
                     {
                         
                         currentCommand = weaponData.Convert_Command(Motion.Command.Normal, true);
-                        print("STRONG");
                     }
                     else
                     {

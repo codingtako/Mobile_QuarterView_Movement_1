@@ -20,4 +20,6 @@ public class Animator_State : StateMachineBehaviour
         base.OnStateUpdate(animator, stateInfo, layerIndex);
         animator.SetFloat("NormalizedTime",stateInfo.normalizedTime);
     }
+
+    
 }

@@ -38,12 +38,6 @@ public class InputManager : MonoBehaviour
         return JS_MainWaepon.isPressing || JS_Skill.isPressing;
     }
 
-    public static bool Have_JS_PreInput()
-    {
-        bool normal_PreInput = (JS_MainWaepon.isCalled && Time.time - JS_MainWaepon.releasedTime < JS_MainWaepon.delay);
-        bool strong_PreInput = (JS_Skill.isCalled && Time.time - JS_Skill.releasedTime < JS_Skill.delay);
-        return normal_PreInput || strong_PreInput;
-    }
     public static bool PreInput_JS_Normal()
     {
         bool normal_PreInput = (JS_MainWaepon.isCalled && Time.time - JS_MainWaepon.releasedTime < JS_MainWaepon.delay);

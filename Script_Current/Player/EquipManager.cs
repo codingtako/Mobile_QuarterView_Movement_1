@@ -259,10 +259,7 @@ public class EquipManager : MonoBehaviour
                     R_Unsheath = twoHand_Unsheath;
                     break;
             }
-            anim.SetFloat("R_UnsheathReady",weaponMain.UnsheathReadySpeed);
-            anim.SetFloat("R_Unsheath",weaponMain.UnsheathSpeed);
-            anim.SetFloat("R_SheathReady",weaponMain.SheathReadySpeed);
-            anim.SetFloat("R_Sheath",weaponMain.SheathSpeed);
+            
         }
         if (weaponSub != null)
         {
@@ -284,10 +281,7 @@ public class EquipManager : MonoBehaviour
                     L_Unsheath = shield_Unsheath;
                     break;
             }
-            anim.SetFloat("L_UnsheathReady",weaponSub.UnsheathReadySpeed);
-            anim.SetFloat("L_Unsheath",weaponSub.UnsheathSpeed);
-            anim.SetFloat("L_SheathReady",weaponSub.SheathReadySpeed);
-            anim.SetFloat("L_Sheath",weaponSub.SheathSpeed);
+            
         }
         
         
@@ -366,20 +360,18 @@ public class EquipManager : MonoBehaviour
             //최초로 발도 시작 할 때
             public bool L_None2UnsheathReady()
             {
+                
                 //왼손을 안쓰는 경우 false
                 if (weaponUsage != WeaponUsage.Both && weaponUsage != WeaponUsage.Sub) return false;
-                //조이스틱을 누르고 있는 경우 true
-                if (InputManager.IsPressingJS())
-                {
-                    return true;
-                }
                 //선입력 있는 경우 true + jsType 설정
-                else if(InputManager.PreInput_JS_Normal())
+                if(!InputManager.JS_MainWaepon.canceled&&
+                   (InputManager.PreInput_JS_Normal() || InputManager.JS_MainWaepon.isPressing))
                 {
                     js_Type = JS_Type.Normal;
                     return true;
                 }
-                else if(InputManager.PreInput_JS_Strong())
+                else if(!InputManager.JS_Skill.canceled&&
+                        (InputManager.PreInput_JS_Strong() || InputManager.JS_Skill.isPressing))
                 {
                     js_Type = JS_Type.Strong;
                     return true;
@@ -402,12 +394,18 @@ public class EquipManager : MonoBehaviour
                 switch (js_Type)
                 {
                     case JS_Type.Normal:
-                        if (!InputManager.JS_MainWaepon.isPressing 
-                            && InputManager.JS_MainWaepon.canceled) return true;
+                        if (!InputManager.JS_MainWaepon.isPressing
+                            && InputManager.JS_MainWaepon.canceled)
+                        {
+                            return true;
+                        }
                         break;
                     case JS_Type.Strong:
-                        if (!InputManager.JS_Skill.isPressing 
-                            && InputManager.JS_Skill.canceled) return true;
+                        if (!InputManager.JS_Skill.isPressing
+                            && InputManager.JS_Skill.canceled)
+                        {
+                            return true;
+                        }
                         break;
                 }
                 return false;
@@ -416,7 +414,7 @@ public class EquipManager : MonoBehaviour
             public bool L_SheathReady2Sheath()
             {
                 if (anim.GetCurrentAnimatorStateInfo(2).IsName("Sheath_Ready")
-                    && !anim.IsInTransition(2)
+                    && !anim.IsInTransition(2) 
                     && anim.GetCurrentAnimatorStateInfo(2).normalizedTime > 0.9f) return true;
                 return false;
             }
@@ -432,6 +430,14 @@ public class EquipManager : MonoBehaviour
             public bool L_Unsheath2SheathReady()
             {
                 if (player.playerState != Player.PlayerState.Attack) return true;
+                return false;
+            }
+
+            public bool L_SheathReady2Unsheath()
+            {
+                if (anim.GetCurrentAnimatorStateInfo(2).IsName("Sheath_Ready")
+                    && !anim.IsInTransition(2)
+                    && anim.GetCurrentAnimatorStateInfo(2).normalizedTime > 0.9f) return true;
                 return false;
             }
             #endregion
@@ -503,18 +509,15 @@ public class EquipManager : MonoBehaviour
             {
                 //오른손을 안쓰는 경우 false
                 if (weaponUsage != WeaponUsage.Both && weaponUsage != WeaponUsage.Main) return false;
-                //조이스틱을 누르고 있는 경우 true
-                if (InputManager.IsPressingJS())
-                {
-                    return true;
-                }
                 //선입력 있는 경우 true + jsType 설정
-                else if(InputManager.PreInput_JS_Normal())
+                if(!InputManager.JS_MainWaepon.canceled&&
+                   (InputManager.PreInput_JS_Normal() || InputManager.JS_MainWaepon.isPressing ))
                 {
                     js_Type = JS_Type.Normal;
                     return true;
                 }
-                else if(InputManager.PreInput_JS_Strong())
+                else if(!InputManager.JS_Skill.canceled&&
+                        (InputManager.PreInput_JS_Strong()|| InputManager.JS_Skill.isPressing ))
                 {
                     js_Type = JS_Type.Strong;
                     return true;
@@ -537,12 +540,18 @@ public class EquipManager : MonoBehaviour
                 switch (js_Type)
                 {
                     case JS_Type.Normal:
-                        if (!InputManager.JS_MainWaepon.isPressing 
-                            && InputManager.JS_MainWaepon.canceled) return true;
+                        if (!InputManager.JS_MainWaepon.isPressing
+                            && InputManager.JS_MainWaepon.canceled)
+                        {
+                            return true;
+                        }
                         break;
                     case JS_Type.Strong:
-                        if (!InputManager.JS_Skill.isPressing 
-                            && InputManager.JS_Skill.canceled) return true;
+                        if (!InputManager.JS_Skill.isPressing
+                            && InputManager.JS_Skill.canceled)
+                        {
+                            return true;
+                        }
                         break;
                 }
                 return false;
@@ -583,7 +592,6 @@ public class EquipManager : MonoBehaviour
         if (weaponUsage == WeaponUsage.None) return false;
         //캔슬된 경우 false
         if (InputManager.JS_MainWaepon.canceled || InputManager.JS_Skill.canceled) return false;
-        //print("1");
         //왼손 애니메이션 플레이 안된 경우 false
         if (weaponUsage != WeaponUsage.None && weaponUsage != WeaponUsage.Main)
         {
@@ -591,7 +599,6 @@ public class EquipManager : MonoBehaviour
             bool checkFinish = anim.GetCurrentAnimatorStateInfo(2).normalizedTime> 0.9f;
             if (!checkState || !checkFinish || anim.IsInTransition(2)) return false;
         }
-        //print("2");
         //오른손 애니메이션 플레이 안된 경우 false
         if (weaponUsage != WeaponUsage.None && weaponUsage != WeaponUsage.Sub)
         {
@@ -599,9 +606,11 @@ public class EquipManager : MonoBehaviour
             bool checkFinish = anim.GetCurrentAnimatorStateInfo(3).normalizedTime> 0.9f;
             if (!checkState || !checkFinish || anim.IsInTransition(3)) return false;
         }
-        //print("3");
         //선입력 있는 경우 true
-        if (InputManager.Have_JS_PreInput())
+        if (js_Type == JS_Type.Normal && !InputManager.JS_MainWaepon.isPressing)
+        {
+            return true;
+        }if (js_Type == JS_Type.Strong && !InputManager.JS_Skill.isPressing)
         {
             return true;
         }

@@ -43,7 +43,7 @@ public class Joystick : PreInput,
     public bool touchControl = true;
     public bool checkMinDist = true;
     public bool isPressing = false;
-    
+    public bool dragged = false;
     public virtual void Start()
     {
         startPos = img_BG.transform.position;
@@ -89,6 +89,7 @@ public class Joystick : PreInput,
     public virtual void OnPointerDown(PointerEventData data)
     {
         if (!touchControl) return;
+        dragged = false;
         Pressed();
         isPressing = true;
         canceled = false;
@@ -102,6 +103,7 @@ public class Joystick : PreInput,
     {
         if (!touchControl) return;
         bool dragBegin = false;
+        dragged = true;
         if (img_BG.position == img_Button.position) dragBegin = true;
         targetVec = data.position;
         float dist = Vector3.Distance(targetVec, img_BG.position); 

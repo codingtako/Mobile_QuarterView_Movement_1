@@ -37,7 +37,7 @@ public class Player_Pointer : MonoBehaviour
         LookAt =2,
         Deactivate = 3
     }
-    private PointerState pointerState;
+    public PointerState pointerState;
 
     #region 트렌지션 여부 체크(StateMachine) 함수
     public bool CanTransition(PointerState targetState)
@@ -46,7 +46,7 @@ public class Player_Pointer : MonoBehaviour
     }
     public bool CanActivate()
     {
-        return InputManager.JS_MainWaepon.input != Vector3.zero||InputManager.JS_Skill.input != Vector3.zero;
+        return (InputManager.JS_MainWaepon.input != Vector3.zero||InputManager.JS_Skill.input != Vector3.zero);
     }
     #endregion
 
@@ -135,30 +135,27 @@ public class Player_Pointer : MonoBehaviour
         #region Point_And_LookAt(FlowState)
         public void Point_And_LookAt_Enter()
         {
-            pointerState = PointerState.Point_and_LookAt;
-            anim.SetBool("Activate",true);
             
         }
         public void Point_And_LookAt()
         {
             Update_State(true,true);
+            anim.SetBool("Activate",InputManager.JS_MainWaepon.isPressing||InputManager.JS_Skill.isPressing);
         }
         #endregion
         #region Point(FlowState)
         public void Point_Enter()
         {
-            pointerState = PointerState.Point;
-            anim.SetBool("Activate",true);
         }
         public void Point()
         {
             Update_State(true,false);
+            anim.SetBool("Activate",InputManager.JS_MainWaepon.isPressing||InputManager.JS_Skill.isPressing);
         }
         #endregion
         #region LookAt(FlowState)
         public void LookAt_Enter()
         {
-            pointerState = PointerState.LookAt;
             anim.SetBool("Activate",false);
         }
         public void LookAt()
@@ -169,7 +166,6 @@ public class Player_Pointer : MonoBehaviour
         #region Deactivate(FlowState)
         public void Deactivate_Enter()
         {
-            pointerState = PointerState.Deactivate;
             anim.SetBool("Activate",false);
         }
         public void Deactivate()
